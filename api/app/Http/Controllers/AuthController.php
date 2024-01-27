@@ -11,29 +11,47 @@ class AuthController extends Controller
 {
     // Method for user registration
     public function register(Request $request)
-    {
-        $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+{
+    \Log::info('Register method called.');
+
+    try {
+        // Your data validation...
+        $validatedData = $request->validate([
+            'Username' => 'required|string|max:255',
+            'Email' => 'required|string|email|max:255|unique:Users',
+            'Password' => 'required|string|min:8|confirmed',
         ]);
 
+        \Log::info('Data validated successfully.');
+
+        // Creating user...
         $user = User::create([
-            'Username' => $request->username,
-            'Email' => $request->email,
-            'Password' => Hash::make($request->password),
-            // Here you can add a default image if needed
-            'ProfilePicture' => 'images/profiles/default.jpg', 
+            'Username' => $validatedData['Username'],
+            'Email' => $validatedData['Email'],
+            'Password' => Hash::make($validatedData['Password']),
+            // Other fields...
         ]);
 
+        \Log::info('User created successfully.', ['user_id' => $user->id]);
+
+        // Creating token for the user...
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Response to the client...
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
         ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error in register method.', ['message' => $e->getMessage(), 'stack' => $e->getTraceAsString()]);
+        // Returning error response to the client
+        return response()->json(['message' => 'Registration failed.'], 500);
     }
+}
+
+
 
     // Method for user login
     public function login(Request $request)
