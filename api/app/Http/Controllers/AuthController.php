@@ -23,7 +23,7 @@ class AuthController extends Controller
             'Email' => $request->email,
             'Password' => Hash::make($request->password),
             // Here you can add a default image if needed
-            'ProfilePicture' => 'default/path/to/image.jpg', 
+            'ProfilePicture' => 'images/profiles/default.jpg', 
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
